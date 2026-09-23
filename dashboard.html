@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <title>Dashboard Keamanan • Smart Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="lib/bootstrap-icons/bootstrap-icons.min.css" />
 <link rel="stylesheet" href="dashboard.css" />
 </head>
@@ -16,10 +19,10 @@
       </div>
     </div>
     <div class="db-actions">
-      <button id="btnExportCsv" class="db-btn">
+      <button id="btnExportCsv" class="db-btn db-btn-primary">
         <i class="bi bi-file-earmark-spreadsheet-fill"></i> Ekspor CSV
       </button>
-      <button id="btnExportJson" class="db-btn">
+      <button id="btnExportJson" class="db-btn db-btn-secondary">
         <i class="bi bi-file-earmark-code-fill"></i> Ekspor JSON
       </button>
     </div>
@@ -31,11 +34,11 @@
         <div class="db-card-label"><i class="bi bi-shield-shaded"></i> SAFETY SCORE</div>
         <div class="db-score-gauge-wrap">
           <svg viewBox="0 0 140 140" width="130" height="130">
-            <circle cx="70" cy="70" r="56" fill="none" stroke="#e9e7fb" stroke-width="12" />
-            <circle id="scoreArc" cx="70" cy="70" r="56" fill="none" stroke="#4f46e5" stroke-width="12"
+            <circle cx="70" cy="70" r="56" fill="none" stroke="#e1e8dc" stroke-width="12" />
+            <circle id="scoreArc" cx="70" cy="70" r="56" fill="none" stroke="#163300" stroke-width="12"
                     stroke-linecap="round" transform="rotate(-90 70 70)" />
-            <text x="70" y="66" text-anchor="middle" font-size="28" font-weight="800" fill="#1f2333" id="scoreNum">-</text>
-            <text x="70" y="85" text-anchor="middle" font-size="11" fill="#8a8fa3">dari 100</text>
+            <text x="70" y="66" text-anchor="middle" font-size="28" font-weight="900" fill="#163300" id="scoreNum">-</text>
+            <text x="70" y="85" text-anchor="middle" font-size="11" font-weight="600" fill="#596552">dari 100</text>
           </svg>
         </div>
         <div id="scoreTrend" class="db-trend"></div>
@@ -60,8 +63,8 @@
         <div class="db-ratio-fill" id="ratioFill"></div>
       </div>
       <div class="db-ratio-legend">
-        <span id="ratioSanitizedLabel"><i class="bi bi-shield-check text-success"></i> Disamarkan -%</span>
-        <span id="ratioOverrideLabel"><i class="bi bi-send-exclamation text-danger"></i> Dikirim asli -%</span>
+        <span id="ratioSanitizedLabel"><i class="bi bi-shield-check"></i> Disamarkan -%</span>
+        <span id="ratioOverrideLabel"><i class="bi bi-send-exclamation"></i> Dikirim asli -%</span>
       </div>
     </section>
 

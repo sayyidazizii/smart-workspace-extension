@@ -56,19 +56,23 @@ function renderScore(thisWeek, lastWeek) {
   const arc = document.getElementById("scoreArc");
   arc.setAttribute("stroke-dasharray", `${circumference}`);
   arc.setAttribute("stroke-dashoffset", `${circumference * (1 - score / 100)}`);
+  arc.setAttribute("stroke", "#163300");
   document.getElementById("scoreNum").textContent = score;
 
   const diff = score - prevScore;
   const trendEl = document.getElementById("scoreTrend");
   if (thisWeek.length === 0 && lastWeek.length === 0) {
     trendEl.innerHTML = `<i class="bi bi-dash"></i> Belum ada data minggu ini`;
-    trendEl.style.color = "#8a8fa3";
+    trendEl.style.color = "#596552";
+    trendEl.style.background = "#f0f4ee";
   } else if (diff >= 0) {
     trendEl.innerHTML = `<i class="bi bi-arrow-up-right"></i> Naik ${diff} poin minggu ini`;
-    trendEl.style.color = "#16a34a";
+    trendEl.style.color = "#163300";
+    trendEl.style.background = "#e6f9d7";
   } else {
     trendEl.innerHTML = `<i class="bi bi-arrow-down-right"></i> Turun ${Math.abs(diff)} poin minggu ini`;
-    trendEl.style.color = "#dc2626";
+    trendEl.style.color = "#d92d20";
+    trendEl.style.background = "#fef3f2";
   }
 }
 
@@ -100,8 +104,8 @@ function renderRatio(thisWeek) {
   const sanitized = thisWeek.filter((e) => e.action === "sanitized").length;
   const pct = total ? Math.round((sanitized / total) * 100) : 0;
   document.getElementById("ratioFill").style.width = pct + "%";
-  document.getElementById("ratioSanitizedLabel").innerHTML = `<i class="bi bi-shield-check text-success"></i> Disamarkan ${pct}%`;
-  document.getElementById("ratioOverrideLabel").innerHTML = `<i class="bi bi-send-exclamation text-danger"></i> Dikirim asli ${100 - pct}%`;
+  document.getElementById("ratioSanitizedLabel").innerHTML = `<i class="bi bi-shield-check"></i> Disamarkan ${pct}%`;
+  document.getElementById("ratioOverrideLabel").innerHTML = `<i class="bi bi-send-exclamation"></i> Dikirim asli ${100 - pct}%`;
 }
 
 function renderWeekChart(thisWeek) {
@@ -130,8 +134,8 @@ function renderWeekChart(thisWeek) {
     rect.setAttribute("y", y);
     rect.setAttribute("width", barWidth);
     rect.setAttribute("height", h);
-    rect.setAttribute("rx", 6);
-    rect.setAttribute("fill", i === maxIndex(counts) ? "#4f46e5" : "#c7cbfa");
+    rect.setAttribute("rx", 8);
+    rect.setAttribute("fill", i === maxIndex(counts) ? "#163300" : "#9fe870");
     svg.appendChild(rect);
 
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -139,7 +143,8 @@ function renderWeekChart(thisWeek) {
     label.setAttribute("y", chartHeight + 30);
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("font-size", "11");
-    label.setAttribute("fill", "#8a8fa3");
+    label.setAttribute("font-weight", "600");
+    label.setAttribute("fill", "#596552");
     label.textContent = DAY_LABELS[i];
     svg.appendChild(label);
   });
