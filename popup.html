@@ -3,28 +3,61 @@
 <head>
 <meta charset="UTF-8" />
 <title>Smart Workspace</title>
+<link rel="stylesheet" href="lib/bootstrap-icons/bootstrap-icons.min.css" />
 <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <header class="sw-header">
-    <div class="sw-logo">SW</div>
+    <div class="sw-logo"><i class="bi bi-shield-shaded"></i></div>
     <div class="sw-header-text">
       <div class="sw-title">Smart Workspace</div>
-      <div class="sw-subtitle">Extension • Local AI Privacy Guard</div>
+      <div class="sw-subtitle">Local AI Privacy & Focus Guard</div>
     </div>
   </header>
 
-  <div class="sw-nickname-row" id="nicknameRow">
-    <span class="sw-nickname-greet">Halo, <span id="nicknameText">Pengguna</span> 👋</span>
-    <button id="btnEditNickname" class="sw-pencil-btn" title="Ubah nama panggilan">✏️</button>
-  </div>
-  <form id="nicknameForm" class="sw-nickname-form sw-hidden">
-    <input id="nicknameInput" type="text" maxlength="30" placeholder="Nama panggilan kamu" />
-    <button type="submit" class="sw-btn-small">Simpan</button>
-  </form>
+  <!-- Top bar: Nickname & Circular Battery Memory Widget -->
+  <div class="sw-top-bar">
+    <div class="sw-nickname-row" id="nicknameRow">
+      <span class="sw-nickname-greet">
+        <i class="bi bi-person-fill sw-user-icon"></i> Halo, <span id="nicknameText">Pengguna</span>
+      </span>
+      <button id="btnEditNickname" class="sw-icon-btn sw-btn-edit-nick" title="Ubah nama panggilan">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+    <form id="nicknameForm" class="sw-nickname-form sw-hidden">
+      <input id="nicknameInput" type="text" maxlength="30" placeholder="Nama panggilan kamu" />
+      <button type="submit" class="sw-btn-small"><i class="bi bi-check-lg"></i> Simpan</button>
+    </form>
 
+    <!-- Circular Memory Gauge at Top (like Phone Battery) -->
+    <div class="sw-battery-card">
+      <div class="sw-battery-circle-wrap">
+        <div class="sw-battery-circle" id="batteryCircle" style="--mem-pct: 0%;">
+          <div class="sw-battery-inner">
+            <span id="batteryPct" class="sw-battery-pct">0%</span>
+          </div>
+        </div>
+      </div>
+      <div class="sw-battery-info">
+        <div class="sw-battery-title">
+          <i class="bi bi-battery-charging"></i>
+          <span>Memory Lokal</span>
+          <span id="storageBadge" class="sw-status-pill safe">Aman</span>
+        </div>
+        <div class="sw-battery-desc" id="storageText">0 KB / 10 MB terpakai</div>
+      </div>
+      <button id="btnClearData" class="sw-icon-btn sw-btn-reset-top" title="Hapus Semua Data Lokal">
+        <i class="bi bi-trash3"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Profile Summary Card -->
   <div class="sw-active-card" id="activeCard">
-    <span class="sw-active-icon" id="activeIcon">💼</span>
+    <div class="sw-active-icon">
+      <i class="bi bi-briefcase-fill" id="activeIcon"></i>
+    </div>
     <div class="sw-active-info">
       <div class="sw-active-label">Profil Aktif: <span id="activeName">-</span></div>
       <div class="sw-active-sub" id="activeSummary">- domain diizinkan • - domain dibisukan</div>
@@ -32,52 +65,181 @@
   </div>
 
   <main>
+    <!-- View Profiles -->
     <section id="viewProfiles" class="sw-view">
-      <div class="sw-section-label">PROFIL RUANG KERJA</div>
-      <div id="profileList" class="sw-profile-list"></div>
-      <button id="btnAddProfile" class="sw-add-profile">+ Tambah Profil Baru</button>
+      <div class="sw-profile-header-row">
+        <div class="sw-section-label">MODE RUANG KERJA</div>
+        <button id="btnAddProfile" class="sw-btn-add-mode" title="Tambah Profil Baru">
+          <i class="bi bi-plus-lg"></i> Tambah Mode
+        </button>
+      </div>
 
-      <div class="sw-storage-box">
-        <div class="sw-storage-top">
-          <span>Local Memory Terpakai</span>
-          <span id="storageText">- KB / - MB</span>
+      <!-- Dynamic Search for Mode Names -->
+      <div class="sw-search-wrapper">
+        <i class="bi bi-search sw-search-icon"></i>
+        <input type="text" id="searchModeInput" class="sw-search-input" placeholder="Cari nama mode..." />
+        <button type="button" id="btnClearSearch" class="sw-search-clear sw-hidden" title="Hapus pencarian">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>
+
+      <!-- Horizontal Mode Cards (kekanan) -->
+      <div class="sw-carousel-wrapper">
+        <div id="profileList" class="sw-profile-list"></div>
+      </div>
+
+      <!-- Recent Intercepted Leak Preview -->
+      <div class="sw-leak-card" id="leakPreviewCard">
+        <div class="sw-leak-card-header">
+          <div class="sw-leak-card-title">
+            <i class="bi bi-shield-lock-fill text-primary"></i>
+            <span>Pencegahan Kebocoran Terakhir</span>
+          </div>
+          <span id="leakCountBadge" class="sw-status-pill info">0 Tercegat</span>
         </div>
-        <div class="sw-storage-bar"><div class="sw-storage-fill" id="storageFill"></div></div>
-        <button id="btnClearData" class="sw-clear-data-btn">🗑️ Hapus Semua Data Lokal</button>
+        <div id="leakRecentContent" class="sw-leak-content">
+          <div class="sw-hint-muted">Belum ada kebocoran data terdeteksi. Sistem aktif memindai NIK, Email, API Key, dan Kartu.</div>
+        </div>
       </div>
     </section>
 
+    <!-- View Keywords -->
     <section id="viewKeywords" class="sw-view sw-hidden">
       <div class="sw-section-label">KATA KUNCI SENSITIF KUSTOM</div>
-      <p class="sw-hint">Daftarkan istilah non-standar (nama proyek, nama klien, dsb.) agar ikut disamarkan.</p>
+      <p class="sw-hint">Daftarkan istilah non-standar (nama proyek, klien, kode rahasia) agar ikut disamarkan.</p>
       <div id="keywordList" class="sw-keyword-list"></div>
       <form id="keywordForm" class="sw-keyword-form">
-        <input id="keywordTerm" type="text" placeholder="Kata kunci (mis. Proyek Elang)" required />
-        <button type="submit" class="sw-btn-small">Tambah</button>
+        <input id="keywordTerm" type="text" placeholder="Kata kunci (mis. Proyek Garuda)" required />
+        <button type="submit" class="sw-btn-small"><i class="bi bi-plus-lg"></i> Tambah</button>
       </form>
 
       <div class="sw-section-label" style="margin-top:16px;">DETEKTOR AKTIF</div>
-      <div class="sw-toggle-row"><label><input type="checkbox" id="detNik" checked /> NIK</label></div>
-      <div class="sw-toggle-row"><label><input type="checkbox" id="detEmail" checked /> Email</label></div>
-      <div class="sw-toggle-row"><label><input type="checkbox" id="detApikey" checked /> API Key / Token</label></div>
-      <div class="sw-toggle-row"><label><input type="checkbox" id="detCard" checked /> Nomor Kartu</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detNik" checked /> <i class="bi bi-person-vcard text-primary"></i> NIK</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detEmail" checked /> <i class="bi bi-envelope-at text-primary"></i> Email</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detApikey" checked /> <i class="bi bi-key text-primary"></i> API Key / Token</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detCard" checked /> <i class="bi bi-credit-card text-primary"></i> Nomor Kartu</label></div>
     </section>
   </main>
 
+  <!-- Bottom Navigation -->
   <nav class="sw-nav">
     <button class="sw-nav-item" data-view="viewKeywords">
-      <span class="sw-nav-icon">🔑</span>
+      <i class="bi bi-key-fill sw-nav-icon"></i>
       <span>Keywords</span>
     </button>
     <button class="sw-nav-item active" data-view="viewProfiles">
-      <span class="sw-nav-icon">👤</span>
+      <i class="bi bi-person-workspace sw-nav-icon"></i>
       <span>Profiles</span>
     </button>
     <button class="sw-nav-item" id="btnDashboard">
-      <span class="sw-nav-icon">📊</span>
+      <i class="bi bi-speedometer2 sw-nav-icon"></i>
       <span>Dashboard</span>
     </button>
   </nav>
+
+  <!-- Modal: Detail Mode (Allowed & Disallowed) -->
+  <div id="modalDetailMode" class="sw-modal sw-hidden">
+    <div class="sw-modal-backdrop" id="backdropDetail"></div>
+    <div class="sw-modal-dialog">
+      <div class="sw-modal-header">
+        <div class="sw-modal-title">
+          <div class="sw-modal-icon-badge" id="detailIconBadge"><i class="bi bi-briefcase-fill" id="detailIcon"></i></div>
+          <div>
+            <div id="detailName" class="sw-modal-name">Nama Mode</div>
+            <div class="sw-modal-subtitle">Detail aturan & perizinan domain</div>
+          </div>
+        </div>
+        <button type="button" class="sw-icon-btn sw-modal-close" id="btnCloseDetail" title="Tutup">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="sw-modal-body">
+        <div class="sw-rule-group">
+          <div class="sw-rule-header text-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Domain Diizinkan (Allowed)</span>
+          </div>
+          <div class="sw-rule-content" id="detailAllowed"></div>
+        </div>
+
+        <div class="sw-rule-group">
+          <div class="sw-rule-header text-danger">
+            <i class="bi bi-volume-mute-fill"></i>
+            <span>Domain Dibisukan (Muted / Mute Audio)</span>
+          </div>
+          <div class="sw-rule-content" id="detailMuted"></div>
+        </div>
+
+        <div class="sw-rule-note">
+          <i class="bi bi-info-circle-fill"></i>
+          <span>Tab yang berada di luar domain yang diizinkan akan otomatis dikelompokkan ke grup "Lainnya" untuk menjaga konsentrasi.</span>
+        </div>
+      </div>
+
+      <div class="sw-modal-footer">
+        <button type="button" id="btnEditFromDetail" class="sw-btn-modal-action">
+          <i class="bi bi-pencil-square"></i> Edit Aturan Mode
+        </button>
+        <button type="button" id="btnCloseDetailBottom" class="sw-btn-modal-close">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit / Tambah Mode -->
+  <div id="modalEditMode" class="sw-modal sw-hidden">
+    <div class="sw-modal-backdrop" id="backdropEdit"></div>
+    <div class="sw-modal-dialog">
+      <div class="sw-modal-header">
+        <div class="sw-modal-title">
+          <div class="sw-modal-icon-badge"><i class="bi bi-sliders" id="editModalHeaderIcon"></i></div>
+          <div>
+            <div id="editModalTitle" class="sw-modal-name">Edit Mode</div>
+            <div class="sw-modal-subtitle">Ubah nama, ikon, dan aturan domain</div>
+          </div>
+        </div>
+        <button type="button" class="sw-icon-btn sw-modal-close" id="btnCloseEdit" title="Tutup">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form id="formEditMode" class="sw-modal-form">
+        <input type="hidden" id="editModeId" />
+
+        <div class="sw-field">
+          <label for="inputEditName">Nama Mode</label>
+          <input type="text" id="inputEditName" class="sw-input" required maxlength="30" placeholder="Mis. Mode Kerja Pro" />
+        </div>
+
+        <div class="sw-field">
+          <label>Pilih Ikon (Bootstrap Icon)</label>
+          <div class="sw-icon-selector" id="iconSelector">
+            <!-- Icons injected via js -->
+          </div>
+          <input type="hidden" id="inputEditIcon" value="bi-briefcase-fill" />
+        </div>
+
+        <div class="sw-field">
+          <label for="inputEditAllowed">Domain Diizinkan</label>
+          <textarea id="inputEditAllowed" class="sw-textarea" rows="2" placeholder="slack.com, trello.com, mail.google.com"></textarea>
+          <span class="sw-hint-field">Pisahkan domain dengan tanda koma. Kosongkan jika ingin mengizinkan semua domain.</span>
+        </div>
+
+        <div class="sw-field">
+          <label for="inputEditMuted">Domain Dibisukan (Audio Dimute)</label>
+          <textarea id="inputEditMuted" class="sw-textarea" rows="2" placeholder="youtube.com, instagram.com, tiktok.com"></textarea>
+          <span class="sw-hint-field">Pisahkan domain dengan tanda koma.</span>
+        </div>
+
+        <div class="sw-modal-footer">
+          <button type="submit" class="sw-btn-modal-action">
+            <i class="bi bi-check-circle-fill"></i> Simpan
+          </button>
+          <button type="button" id="btnCancelEdit" class="sw-btn-modal-close">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>

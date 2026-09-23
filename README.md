@@ -1,98 +1,55 @@
 # Smart Workspace Extension
 
-Ekstensi peramban berbasis Chromium (Manifest V3) yang memadukan
-manajemen fokus aktivitas dengan *privacy gateway* berbasis AI lokal —
-sesuai dokumen rancang bangun "Smart Workspace Extension".
+Ekstensi peramban berbasis Chromium (Manifest V3) yang memadukan manajemen fokus aktivitas dengan *privacy gateway* berbasis AI lokal — sesuai dokumen rancang bangun "Smart Workspace Extension".
 
 ## Cara Instalasi (Developer Mode)
 
-1. Ekstrak folder `smart-workspace-extension` ini ke lokasi permanen di
-   komputer Anda (jangan di folder Downloads yang sering dibersihkan).
+1. Ekstrak folder `smart-workspace-extension` ini ke lokasi permanen di komputer Anda (jangan di folder Downloads yang sering dibersihkan).
 2. Buka Chrome/Edge/Brave, arahkan ke `chrome://extensions`.
 3. Aktifkan **Developer mode** (kanan atas).
 4. Klik **Load unpacked**, lalu pilih folder `smart-workspace-extension`.
-5. Ikon "SW" akan muncul di toolbar.
+5. Ikon "SW" akan muncul di toolbar browser.
 
-## Cara Penggunaan
+## Fitur & Cara Penggunaan
 
-### 1. Nama Panggilan
-- Di bagian atas popup ada sapaan "Halo, {nama}". Klik ikon pensil ✏️
-  di sampingnya untuk mengubah nama panggilan, ketik nama baru, lalu
-  klik **Simpan** (atau klik di luar kolom — otomatis tersimpan).
+### 1. Indikator Local Memory Lingkaran (Model Baterai HP)
+- Di bagian atas popup terdapat **indikator lingkaran pemakaian memory lokal** (bergaya baterai handphone) yang menampilkan persentase pemakaian `chrome.storage.local` secara *real-time* (kuota 10 MB).
+- Dilengkapi status keamanan (*Aman*, *Waspada*, *Penuh*) serta tombol reset untuk menghapus seluruh data lokal bila diperlukan.
 
-### 2. Konfigurasi Profil & Kata Kunci
-- Klik ikon ekstensi → tab **Profiles**.
-- Tiga profil bawaan tersedia: *Mode Kerja*, *Mode Belajar/Kuliah*,
-  *Mode Santai* — masing-masing dengan daftar domain contoh.
-- Klik **+ Tambah Profil Baru** untuk membuat profil sendiri (nama,
-  domain diizinkan, domain dibisukan, ikon emoji).
-- Klik ikon 🗑️ di kanan tiap kartu profil untuk **menghapus profil**
-  tersebut (minimal harus tersisa satu profil).
-- Tab **Keywords** untuk mendaftarkan kata kunci rahasia kustom (nama
-  proyek internal, nama klien, dsb.) dan mengaktifkan/menonaktifkan
-  detektor bawaan (NIK, Email, API Key, Nomor Kartu).
+### 2. Manajemen Mode Horizontal ("Kekanan") & Pencarian Dinamis
+- Daftar mode ruang kerja ditampilkan dalam format **kartu berjajar ke kanan (horizontal scroll carousel)**, bukan list ke bawah.
+- **Pencarian Dinamis (Live Search)**: Tersedia kolom pencarian nama mode di bagian atas daftar. Pengguna cukup mengetik nama mode dan daftar kartu akan terfilter secara instan.
+- **Ikon Mode**: Semua ikon menggunakan pustaka **Bootstrap Icons** (tanpa emotikon dan tanpa SVG).
 
-### 3. Aktivasi Profil
-- Klik sakelar pada kartu profil yang diinginkan.
-- Tab di domain yang **dibisukan** otomatis di-mute.
-- Tab di luar domain **diizinkan** otomatis dikelompokkan & dikolaps ke
-  grup "Lainnya" agar tidak mengganggu fokus.
+### 3. Detail Aturan Mode (Ikon Mata) & Fitur Edit Mode
+- **Ikon Mata** di sebelah tombol tempat sampah (trash) pada tiap kartu:
+  - Klik untuk membuka jendela modal **Detail Mode**.
+  - Melihat secara jelas daftar **Domain Diizinkan (Allowed)** dengan badge hijau centang.
+  - Melihat daftar **Domain Dibisukan (Muted)** dengan badge merah mute.
+- **Ikon Pensil (Edit Mode)**:
+  - Mengubah nama mode.
+  - Memilih ikon dari pemilih visual Bootstrap Icons.
+  - Mengedit daftar domain yang diizinkan dan dibisukan.
+- **Tambah Mode Baru**: Tombol "+ Tambah Mode" membuka formulir interaktif pembuatan mode baru.
 
-### 4. Interaksi Aman di Platform AI
-- Buka ChatGPT, Claude, atau Gemini seperti biasa.
-- Saat Anda mengetik/menempel teks yang mengandung data sensitif lalu
-  menekan Enter atau tombol kirim, ekstensi akan **menahan pengiriman**
-  dan menampilkan gelembung konfirmasi berisi daftar item terdeteksi.
-- Pilih:
-  - **Kirim dengan Samaran** — teks otomatis diganti token
-    (`[REDACTED_NIK]`, `[REDACTED_EMAIL]`, dst.) lalu terkirim.
-  - **Tetap Kirim Asli** — teks asli tetap dikirim tanpa perubahan
-    (dicatat sebagai override).
+### 4. Pencegahan & Detail Data Kebocoran Sensitif
+- Memindai secara *real-time* sebelum prompt dikirim ke ChatGPT, Claude, atau Gemini:
+  - NIK (KTP Indonesia dengan validasi digit provinsi & bulan)
+  - Alamat Email
+  - Nomor Kartu Kredit / Debit (validasi algoritma Luhn)
+  - API Key & Token Rahasia (OpenAI, GitHub, AWS, Bearer, dsb.)
+  - Kata Kunci Kustom (nama proyek rahasia, klien, dsb.)
+- **Detail Data Yang Bocor Ditampilkan**:
+  - Pada jendela *popover konfirmasi*: Menampilkan jenis data, jumlah, potongan nilai yang terdeteksi, dan tombol pratinjau teks tersensor sebelum dikirim.
+  - Pada kartu ringkasan popup: Menampilkan peristiwa kebocoran terakhir yang berhasil dicegat.
+  - Pada **Dashboard Keamanan**: Log audit menampilkan rincian tabel data yang bocor (nilai sensitif, jumlah, token pengganti, domain tujuan, mode saat kejadian, dan cuplikan pesan asli).
+  - Ekspor log dalam format CSV dan JSON kini menyertakan seluruh rincian data kebocoran.
 
-### 5. Dashboard Analitik
-- Klik tab **Dashboard** pada popup untuk membuka halaman penuh berisi:
-  Safety Score, total peristiwa dicegat, jenis data tersering, rasio
-  tindakan (disamarkan vs. dikirim asli), grafik frekuensi mingguan,
-  dan log audit terbaru.
-- Tombol **Ekspor CSV/JSON** mengunduh seluruh riwayat log secara lokal.
+### 5. Aktivasi & Pengendalian Tab Otomatis
+- Mengaktifkan mode cukup dengan menekan sakelar toggle pada kartu mode.
+- Tab dengan domain dibisukan otomatis dimatikan suaranya (*audio mute*).
+- Tab di luar domain yang diizinkan otomatis dikelompokkan ke grup tab *"Lainnya"* untuk meminimalkan distraksi.
 
-### 6. Local Memory Usage & Hapus Data
-- Di bawah daftar profil ada indikator **Local Memory Terpakai** —
-  menunjukkan berapa banyak `chrome.storage.local` yang sudah dipakai
-  ekstensi ini (dari kuota 10 MB) dan bertambah otomatis setiap ada
-  perubahan data.
-- Tombol **🗑️ Hapus Semua Data Lokal** menghapus seluruh profil, kata
-  kunci kustom, nama panggilan, dan log audit dari browser ini, lalu
-  mengembalikan ekstensi ke kondisi bawaan (3 profil default). Akan
-  ada konfirmasi sebelum data benar-benar terhapus, dan tindakan ini
-  **tidak bisa dibatalkan**.
-
-## Catatan Teknis & Batasan
-
-- **Semua pemrosesan berjalan on-device** melalui `chrome.storage.local`
-  — tidak ada data yang dikirim ke server pihak ketiga.
-- Selector DOM untuk kolom input & tombol kirim di ChatGPT/Claude/Gemini
-  didefinisikan di `content.js` (`SITE_CONFIG`). Platform pihak ketiga
-  kerap mengubah struktur halaman mereka — jika deteksi berhenti bekerja
-  di satu situs, periksa dan perbarui selector tersebut.
-- Validasi NIK bersifat heuristik ringan (format 16 digit + rentang kode
-  provinsi/bulan lahir), bukan validasi resmi Dukcapil.
-- Deteksi nomor kartu menggunakan algoritma Luhn untuk mengurangi
-  positif-palsu, namun tetap heuristik.
-- Pengelompokan tab memerlukan izin `tabGroups`, yang tersedia di Chrome
-  versi modern; jika API tidak tersedia, ekstensi tetap menjalankan
-  fungsi mute tanpa grouping.
-
-## Struktur Folder
-
-```
-smart-workspace-extension/
-├── manifest.json
-├── background.js        # Service worker: profil, mute/group tab, audit log
-├── content.js            # Pemindai input & gelembung konfirmasi di situs AI
-├── content.css
-├── popup.html/.css/.js   # UI popup: profil, keywords, detektor
-├── dashboard.html/.css/.js  # Dashboard analitik risiko
-├── lib/sanitizer.js      # Mesin deteksi & penyamaran data sensitif
-└── icons/
-```
+## Ringkasan Perubahan Aset & Komponen
+- **Pustaka Ikon**: Sepenuhnya menggunakan Bootstrap Icons lokal (`lib/bootstrap-icons/`), tanpa emotikon, tanpa SVG tag untuk ikon.
+- **Tata Letak**: Responsif, ramah navigasi horizontal, modal interaktif, dan visualisasi bar lingkaran berbasis CSS modern (*zero external network requirement*).

@@ -7,7 +7,7 @@ const DEFAULT_PROFILES = [
   {
     id: "kerja",
     name: "Mode Kerja",
-    icon: "💼",
+    icon: "bi-briefcase-fill",
     color: "purple",
     allowedDomains: ["slack.com", "trello.com", "mail.google.com"],
     mutedDomains: ["youtube.com", "instagram.com", "tiktok.com"]
@@ -15,7 +15,7 @@ const DEFAULT_PROFILES = [
   {
     id: "belajar",
     name: "Mode Belajar/Kuliah",
-    icon: "📚",
+    icon: "bi-mortarboard-fill",
     color: "blue",
     allowedDomains: ["elearning.ut.ac.id", "zoom.us", "docs.google.com"],
     mutedDomains: ["youtube.com", "instagram.com", "tiktok.com", "slack.com"]
@@ -23,7 +23,7 @@ const DEFAULT_PROFILES = [
   {
     id: "santai",
     name: "Mode Santai",
-    icon: "🎮",
+    icon: "bi-controller",
     color: "green",
     allowedDomains: [],
     mutedDomains: []
@@ -38,6 +38,21 @@ const DEFAULT_SETTINGS = {
   keywords: true
 };
 
+function normalizeIcon(icon) {
+  if (!icon) return "bi-collection-fill";
+  if (icon.startsWith("bi-")) return icon;
+  const map = {
+    "💼": "bi-briefcase-fill",
+    "📚": "bi-mortarboard-fill",
+    "🎮": "bi-controller",
+    "🚀": "bi-rocket-takeoff-fill",
+    "🗂️": "bi-folder-fill",
+    "💻": "bi-laptop",
+    "☕": "bi-cup-hot-fill"
+  };
+  return map[icon] || "bi-collection-fill";
+}
+
 async function initStorage() {
   const data = await chrome.storage.local.get([
     "profiles",
@@ -49,7 +64,22 @@ async function initStorage() {
   ]);
 
   const patch = {};
-  if (!data.profiles) patch.profiles = DEFAULT_PROFILES;
+  if (!data.profiles) {
+    patch.profiles = DEFAULT_PROFILES;
+  } else {
+    // Migrasi profil lama agar menggunakan class icon bootstrap jika masih berupa emoji
+    let changed = false;
+    const migrated = data.profiles.map((p) => {
+      const newIcon = normalizeIcon(p.icon);
+      if (newIcon !== p.icon) {
+        changed = true;
+        return { ...p, icon: newIcon };
+      }
+      return p;
+    });
+    if (changed) patch.profiles = migrated;
+  }
+
   if (!data.activeProfileId) patch.activeProfileId = DEFAULT_PROFILES[0].id;
   if (!data.customKeywords) patch.customKeywords = [];
   if (!data.auditLog) patch.auditLog = [];
@@ -136,15 +166,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "LOG_AUDIT_EVENT") {
-    chrome.storage.local.get(["auditLog"]).then(({ auditLog }) => {
+    chrome.storage.local.get(["auditLog", "profiles"]).then(({ auditLog, profiles }) => {
       const log = auditLog || [];
+      const currentProfile = (profiles || []).find((p) => p.id === message.profileId);
       log.unshift({
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         ts: Date.now(),
         domain: message.domain,
         action: message.action, // "sanitized" | "override"
         items: message.items || [],
-        profileId: message.profileId || null
+        snippet: message.snippet || "",
+        profileId: message.profileId || null,
+        profileName: currentProfile ? currentProfile.name : "Profil Standar"
       });
       // Batasi ukuran log agar storage tidak membengkak
       const trimmed = log.slice(0, 1000);

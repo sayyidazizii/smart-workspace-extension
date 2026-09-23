@@ -39,9 +39,23 @@
         "*://gemini.google.com/*"
       ],
       "js": ["lib/sanitizer.js", "content.js"],
-      "css": ["content.css"],
+      "css": ["lib/bootstrap-icons/bootstrap-icons.min.css", "content.css"],
       "run_at": "document_idle",
       "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/bootstrap-icons/bootstrap-icons.min.css",
+        "lib/bootstrap-icons/fonts/*"
+      ],
+      "matches": [
+        "*://chat.openai.com/*",
+        "*://chatgpt.com/*",
+        "*://claude.ai/*",
+        "*://gemini.google.com/*"
+      ]
     }
   ]
 }

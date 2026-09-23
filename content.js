@@ -86,12 +86,35 @@
     );
   }
 
-  function logAuditEvent(action, findings) {
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function logAuditEvent(action, result) {
+    const findings = result.findings || [];
+    const snippet = result.originalText
+      ? (result.originalText.length > 200 ? result.originalText.slice(0, 200) + "..." : result.originalText)
+      : "";
+
     chrome.runtime.sendMessage({
       type: "LOG_AUDIT_EVENT",
       domain: HOST,
       action, // "sanitized" | "override"
-      items: findings.map((f) => ({ type: f.type, label: f.label, count: f.count })),
+      items: findings.map((f) => ({
+        type: f.type,
+        label: f.label,
+        count: f.count,
+        sample: f.sample || "",
+        samples: f.samples || (f.sample ? [f.sample] : []),
+        token: f.token
+      })),
+      snippet,
       profileId: activeProfileId
     });
   }
@@ -108,8 +131,11 @@
     }
   }
 
-  function showPopover(el, findings, onSanitize, onOverride) {
+  function showPopover(el, scanResult, onSanitize, onOverride) {
     removePopover();
+
+    const findings = scanResult.findings || [];
+    const totalCount = scanResult.totalCount || findings.reduce((s, f) => s + (f.count || 1), 0);
 
     const box = document.createElement("div");
     box.className = "sw-popover";
@@ -117,29 +143,66 @@
     const header = document.createElement("div");
     header.className = "sw-popover-header";
     header.innerHTML = `
-      <span class="sw-popover-icon">!</span>
-      <div>
-        <div class="sw-popover-title">Data Sensitif Terdeteksi</div>
-        <div class="sw-popover-subtitle">${findings.length} item berisiko ditemukan sebelum kirim</div>
+      <span class="sw-popover-icon"><i class="bi bi-shield-exclamation"></i></span>
+      <div class="sw-popover-header-text">
+        <div class="sw-popover-title">Potensi Kebocoran Data Terdeteksi</div>
+        <div class="sw-popover-subtitle">${totalCount} data sensitif dicegat sebelum terkirim ke platform AI</div>
       </div>`;
     box.appendChild(header);
 
     const list = document.createElement("div");
     list.className = "sw-popover-list";
+
     findings.forEach((f) => {
       const row = document.createElement("div");
       row.className = "sw-popover-row";
-      row.innerHTML = `<span class="sw-row-type">${f.label}</span><span class="sw-row-arrow">${f.count}× &rarr; ${f.token}</span>`;
+
+      const samplesList = (f.samples && f.samples.length) ? f.samples.join(", ") : (f.sample || "-");
+
+      row.innerHTML = `
+        <div class="sw-row-main">
+          <span class="sw-row-type"><i class="bi bi-exclamation-circle-fill"></i> ${escapeHtml(f.label)} (${f.count}x)</span>
+          <span class="sw-row-arrow">&rarr; ${escapeHtml(f.token)}</span>
+        </div>
+        <div class="sw-row-detail">
+          <span class="sw-detail-label">Data bocor:</span>
+          <code class="sw-leak-code">${escapeHtml(samplesList)}</code>
+        </div>
+      `;
       list.appendChild(row);
     });
     box.appendChild(list);
+
+    // Toggle Preview sanitized text
+    const previewContainer = document.createElement("div");
+    previewContainer.className = "sw-popover-preview-container";
+    previewContainer.innerHTML = `
+      <button type="button" class="sw-toggle-preview-btn">
+        <i class="bi bi-eye"></i> Lihat Teks Tersensor
+      </button>
+      <div class="sw-preview-box sw-hidden">
+        <div class="sw-preview-label">Teks yang akan dikirim (Data sensitif diganti token aman):</div>
+        <div class="sw-preview-text">${escapeHtml(scanResult.sanitized || "")}</div>
+      </div>
+    `;
+
+    const toggleBtn = previewContainer.querySelector(".sw-toggle-preview-btn");
+    const previewBox = previewContainer.querySelector(".sw-preview-box");
+    toggleBtn.addEventListener("click", () => {
+      previewBox.classList.toggle("sw-hidden");
+      const isShowing = !previewBox.classList.contains("sw-hidden");
+      toggleBtn.innerHTML = isShowing
+        ? `<i class="bi bi-eye-slash"></i> Sembunyikan Teks Tersensor`
+        : `<i class="bi bi-eye"></i> Lihat Teks Tersensor`;
+    });
+    box.appendChild(previewContainer);
 
     const actions = document.createElement("div");
     actions.className = "sw-popover-actions";
 
     const btnSanitize = document.createElement("button");
     btnSanitize.className = "sw-btn sw-btn-primary";
-    btnSanitize.textContent = "Kirim dengan Samaran";
+    btnSanitize.innerHTML = `<i class="bi bi-shield-check"></i> Kirim dengan Samaran`;
     btnSanitize.onclick = () => {
       removePopover();
       onSanitize();
@@ -147,7 +210,7 @@
 
     const btnOverride = document.createElement("button");
     btnOverride.className = "sw-btn sw-btn-secondary";
-    btnOverride.textContent = "Tetap Kirim Asli";
+    btnOverride.innerHTML = `<i class="bi bi-send-exclamation"></i> Tetap Kirim Asli`;
     btnOverride.onclick = () => {
       removePopover();
       onOverride();
@@ -185,15 +248,15 @@
 
     showPopover(
       el,
-      result.findings,
+      result,
       () => {
         setText(el, result.sanitized);
-        logAuditEvent("sanitized", result.findings);
+        logAuditEvent("sanitized", result);
         setTimeout(() => triggerSend(el), 50);
       },
       () => {
         pendingBypassText = text;
-        logAuditEvent("override", result.findings);
+        logAuditEvent("override", result);
         setTimeout(() => triggerSend(el), 0);
       }
     );

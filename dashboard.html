@@ -3,62 +3,88 @@
 <head>
 <meta charset="UTF-8" />
 <title>Dashboard Keamanan • Smart Workspace</title>
+<link rel="stylesheet" href="lib/bootstrap-icons/bootstrap-icons.min.css" />
 <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
   <header class="db-header">
-    <h1>Dashboard Keamanan • Smart Workspace</h1>
-    <div>
-      <button id="btnExportCsv" class="db-btn">Ekspor CSV</button>
-      <button id="btnExportJson" class="db-btn">Ekspor JSON</button>
+    <div class="db-brand">
+      <div class="db-brand-icon"><i class="bi bi-shield-check"></i></div>
+      <div>
+        <h1>Dashboard Keamanan & Pencegahan Kebocoran</h1>
+        <div class="db-subtitle">Audit log lokal on-device • Smart Workspace Extension</div>
+      </div>
+    </div>
+    <div class="db-actions">
+      <button id="btnExportCsv" class="db-btn">
+        <i class="bi bi-file-earmark-spreadsheet-fill"></i> Ekspor CSV
+      </button>
+      <button id="btnExportJson" class="db-btn">
+        <i class="bi bi-file-earmark-code-fill"></i> Ekspor JSON
+      </button>
     </div>
   </header>
 
   <main>
     <section class="db-cards">
       <div class="db-card db-score-card">
-        <div class="db-card-label">SAFETY SCORE</div>
-        <svg viewBox="0 0 140 140" width="140" height="140">
-          <circle cx="70" cy="70" r="58" fill="none" stroke="#e9e7fb" stroke-width="14" />
-          <circle id="scoreArc" cx="70" cy="70" r="58" fill="none" stroke="#4f46e5" stroke-width="14"
-                  stroke-linecap="round" transform="rotate(-90 70 70)" />
-          <text x="70" y="66" text-anchor="middle" font-size="30" font-weight="700" fill="#1f2333" id="scoreNum">-</text>
-          <text x="70" y="86" text-anchor="middle" font-size="11" fill="#8a8fa3">dari 100</text>
-        </svg>
+        <div class="db-card-label"><i class="bi bi-shield-shaded"></i> SAFETY SCORE</div>
+        <div class="db-score-gauge-wrap">
+          <svg viewBox="0 0 140 140" width="130" height="130">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="#e9e7fb" stroke-width="12" />
+            <circle id="scoreArc" cx="70" cy="70" r="56" fill="none" stroke="#4f46e5" stroke-width="12"
+                    stroke-linecap="round" transform="rotate(-90 70 70)" />
+            <text x="70" y="66" text-anchor="middle" font-size="28" font-weight="800" fill="#1f2333" id="scoreNum">-</text>
+            <text x="70" y="85" text-anchor="middle" font-size="11" fill="#8a8fa3">dari 100</text>
+          </svg>
+        </div>
         <div id="scoreTrend" class="db-trend"></div>
       </div>
 
       <div class="db-card">
-        <div class="db-card-label">TOTAL DICEGAT</div>
+        <div class="db-card-label"><i class="bi bi-shield-slash-fill"></i> TOTAL DICEGAT</div>
         <div class="db-big" id="totalBlocked">0</div>
         <div class="db-sub">peristiwa minggu ini</div>
       </div>
 
       <div class="db-card">
-        <div class="db-card-label">JENIS TERSERING</div>
+        <div class="db-card-label"><i class="bi bi-exclamation-octagon-fill"></i> JENIS TERSERING</div>
         <div class="db-big" id="topType">-</div>
         <div class="db-sub" id="topTypeSub">- dari - kejadian</div>
       </div>
     </section>
 
     <section class="db-card db-ratio-card">
-      <div class="db-card-label">RASIO TINDAKAN PENGGUNA</div>
+      <div class="db-card-label"><i class="bi bi-pie-chart-fill"></i> RASIO TINDAKAN PENGGUNA</div>
       <div class="db-ratio-bar">
         <div class="db-ratio-fill" id="ratioFill"></div>
       </div>
       <div class="db-ratio-legend">
-        <span id="ratioSanitizedLabel">Disamarkan -%</span>
-        <span id="ratioOverrideLabel">Dikirim asli -%</span>
+        <span id="ratioSanitizedLabel"><i class="bi bi-shield-check text-success"></i> Disamarkan -%</span>
+        <span id="ratioOverrideLabel"><i class="bi bi-send-exclamation text-danger"></i> Dikirim asli -%</span>
       </div>
     </section>
 
     <section class="db-grid">
       <div class="db-card">
-        <div class="db-card-label">FREKUENSI RISIKO MINGGUAN</div>
+        <div class="db-card-label"><i class="bi bi-bar-chart-fill"></i> FREKUENSI RISIKO MINGGUAN</div>
         <svg id="weekChart" viewBox="0 0 360 220" width="100%" height="220"></svg>
       </div>
-      <div class="db-card">
-        <div class="db-card-label">LOG AUDIT TERBARU</div>
+
+      <div class="db-card db-log-card">
+        <div class="db-log-header">
+          <div class="db-card-label" style="margin-bottom:0;"><i class="bi bi-journal-text"></i> LOG AUDIT KEBOCORAN TERBARU</div>
+          <div class="db-log-count-badge" id="logCountBadge">0 Peristiwa</div>
+        </div>
+
+        <!-- Search Log Filter -->
+        <div class="db-log-search-row">
+          <div class="db-search-input-wrap">
+            <i class="bi bi-search db-search-icon"></i>
+            <input type="text" id="inputSearchLog" placeholder="Cari berdasarkan domain, tipe data, atau nilai..." />
+          </div>
+        </div>
+
         <div id="auditLogList" class="db-log-list"></div>
       </div>
     </section>
