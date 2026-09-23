@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Smart Workspace</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="sw-header">
+    <div class="sw-logo">SW</div>
+    <div class="sw-header-text">
+      <div class="sw-title">Smart Workspace</div>
+      <div class="sw-subtitle">Extension • Local AI Privacy Guard</div>
+    </div>
+  </header>
+
+  <div class="sw-nickname-row" id="nicknameRow">
+    <span class="sw-nickname-greet">Halo, <span id="nicknameText">Pengguna</span> 👋</span>
+    <button id="btnEditNickname" class="sw-pencil-btn" title="Ubah nama panggilan">✏️</button>
+  </div>
+  <form id="nicknameForm" class="sw-nickname-form sw-hidden">
+    <input id="nicknameInput" type="text" maxlength="30" placeholder="Nama panggilan kamu" />
+    <button type="submit" class="sw-btn-small">Simpan</button>
+  </form>
+
+  <div class="sw-active-card" id="activeCard">
+    <span class="sw-active-icon" id="activeIcon">💼</span>
+    <div class="sw-active-info">
+      <div class="sw-active-label">Profil Aktif: <span id="activeName">-</span></div>
+      <div class="sw-active-sub" id="activeSummary">- domain diizinkan • - domain dibisukan</div>
+    </div>
+  </div>
+
+  <main>
+    <section id="viewProfiles" class="sw-view">
+      <div class="sw-section-label">PROFIL RUANG KERJA</div>
+      <div id="profileList" class="sw-profile-list"></div>
+      <button id="btnAddProfile" class="sw-add-profile">+ Tambah Profil Baru</button>
+
+      <div class="sw-storage-box">
+        <div class="sw-storage-top">
+          <span>Local Memory Terpakai</span>
+          <span id="storageText">- KB / - MB</span>
+        </div>
+        <div class="sw-storage-bar"><div class="sw-storage-fill" id="storageFill"></div></div>
+        <button id="btnClearData" class="sw-clear-data-btn">🗑️ Hapus Semua Data Lokal</button>
+      </div>
+    </section>
+
+    <section id="viewKeywords" class="sw-view sw-hidden">
+      <div class="sw-section-label">KATA KUNCI SENSITIF KUSTOM</div>
+      <p class="sw-hint">Daftarkan istilah non-standar (nama proyek, nama klien, dsb.) agar ikut disamarkan.</p>
+      <div id="keywordList" class="sw-keyword-list"></div>
+      <form id="keywordForm" class="sw-keyword-form">
+        <input id="keywordTerm" type="text" placeholder="Kata kunci (mis. Proyek Elang)" required />
+        <button type="submit" class="sw-btn-small">Tambah</button>
+      </form>
+
+      <div class="sw-section-label" style="margin-top:16px;">DETEKTOR AKTIF</div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detNik" checked /> NIK</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detEmail" checked /> Email</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detApikey" checked /> API Key / Token</label></div>
+      <div class="sw-toggle-row"><label><input type="checkbox" id="detCard" checked /> Nomor Kartu</label></div>
+    </section>
+  </main>
+
+  <nav class="sw-nav">
+    <button class="sw-nav-item" data-view="viewKeywords">
+      <span class="sw-nav-icon">🔑</span>
+      <span>Keywords</span>
+    </button>
+    <button class="sw-nav-item active" data-view="viewProfiles">
+      <span class="sw-nav-icon">👤</span>
+      <span>Profiles</span>
+    </button>
+    <button class="sw-nav-item" id="btnDashboard">
+      <span class="sw-nav-icon">📊</span>
+      <span>Dashboard</span>
+    </button>
+  </nav>
+
+  <script src="popup.js"></script>
+</body>
+</html>

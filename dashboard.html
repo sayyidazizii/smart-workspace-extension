@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<title>Dashboard Keamanan • Smart Workspace</title>
+<link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header class="db-header">
+    <h1>Dashboard Keamanan • Smart Workspace</h1>
+    <div>
+      <button id="btnExportCsv" class="db-btn">Ekspor CSV</button>
+      <button id="btnExportJson" class="db-btn">Ekspor JSON</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="db-cards">
+      <div class="db-card db-score-card">
+        <div class="db-card-label">SAFETY SCORE</div>
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#e9e7fb" stroke-width="14" />
+          <circle id="scoreArc" cx="70" cy="70" r="58" fill="none" stroke="#4f46e5" stroke-width="14"
+                  stroke-linecap="round" transform="rotate(-90 70 70)" />
+          <text x="70" y="66" text-anchor="middle" font-size="30" font-weight="700" fill="#1f2333" id="scoreNum">-</text>
+          <text x="70" y="86" text-anchor="middle" font-size="11" fill="#8a8fa3">dari 100</text>
+        </svg>
+        <div id="scoreTrend" class="db-trend"></div>
+      </div>
+
+      <div class="db-card">
+        <div class="db-card-label">TOTAL DICEGAT</div>
+        <div class="db-big" id="totalBlocked">0</div>
+        <div class="db-sub">peristiwa minggu ini</div>
+      </div>
+
+      <div class="db-card">
+        <div class="db-card-label">JENIS TERSERING</div>
+        <div class="db-big" id="topType">-</div>
+        <div class="db-sub" id="topTypeSub">- dari - kejadian</div>
+      </div>
+    </section>
+
+    <section class="db-card db-ratio-card">
+      <div class="db-card-label">RASIO TINDAKAN PENGGUNA</div>
+      <div class="db-ratio-bar">
+        <div class="db-ratio-fill" id="ratioFill"></div>
+      </div>
+      <div class="db-ratio-legend">
+        <span id="ratioSanitizedLabel">Disamarkan -%</span>
+        <span id="ratioOverrideLabel">Dikirim asli -%</span>
+      </div>
+    </section>
+
+    <section class="db-grid">
+      <div class="db-card">
+        <div class="db-card-label">FREKUENSI RISIKO MINGGUAN</div>
+        <svg id="weekChart" viewBox="0 0 360 220" width="100%" height="220"></svg>
+      </div>
+      <div class="db-card">
+        <div class="db-card-label">LOG AUDIT TERBARU</div>
+        <div id="auditLogList" class="db-log-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
